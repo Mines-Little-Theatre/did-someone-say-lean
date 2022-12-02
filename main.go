@@ -11,7 +11,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func readEnv(key string) string {
+func readEnvRequired(key string) string {
 	result, ok := os.LookupEnv(key)
 	if !ok {
 		log.Fatalf("please set the %s environment variable", key)
@@ -19,16 +19,28 @@ func readEnv(key string) string {
 	return result
 }
 
-func main() {
-	token := readEnv("LEAN_TOKEN")
+type app struct {
+	Token            string
+	FallbackReaction string // optional
+}
 
-	bot, err := discordgo.New(token)
+func main() {
+	a := app{
+		Token:            readEnvRequired("LEAN_TOKEN"),
+		FallbackReaction: os.Getenv("LEAN_FALLBACK_REACTION"),
+	}
+
+	a.run()
+}
+
+func (a *app) run() {
+	bot, err := discordgo.New(a.Token)
 	if err != nil {
 		log.Fatalln("failed to create bot:", err)
 	}
 
 	bot.Identify.Intents = discordgo.IntentGuildMessages | discordgo.IntentMessageContent
-	bot.AddHandler(handleMessageCreate)
+	bot.AddHandler(a.handleMessageCreate)
 
 	err = bot.Open()
 	if err != nil {
@@ -47,7 +59,7 @@ func main() {
 
 var leanRegexp = regexp.MustCompile(`(?:^|\W)(\w*lean\w*)(?:\W|$)`)
 
-func handleMessageCreate(s *discordgo.Session, e *discordgo.MessageCreate) {
+func (a *app) handleMessageCreate(s *discordgo.Session, e *discordgo.MessageCreate) {
 	if e.Author.Bot {
 		return // don't respond to yourself or other bots
 	}
@@ -70,6 +82,13 @@ func handleMessageCreate(s *discordgo.Session, e *discordgo.MessageCreate) {
 			e.Reference())
 		if err != nil {
 			log.Println("failed to send reply:", err)
+
+			if a.FallbackReaction != "" {
+				err = s.MessageReactionAdd(e.ChannelID, e.ID, a.FallbackReaction)
+				if err != nil {
+					log.Println("failed to react (fallback):", err)
+				}
+			}
 		}
 	}
 }
