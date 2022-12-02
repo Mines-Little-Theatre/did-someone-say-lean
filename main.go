@@ -45,7 +45,7 @@ func main() {
 	bot.Close()
 }
 
-var leanRegexp = regexp.MustCompile(`(?:^|\W)(\w*)lean(\w*)(?:\W|$)`)
+var leanRegexp = regexp.MustCompile(`(?:^|\W)(\w*lean\w*)(?:\W|$)`)
 
 func handleMessageCreate(s *discordgo.Session, e *discordgo.MessageCreate) {
 	if e.Author.Bot {
@@ -61,8 +61,12 @@ func handleMessageCreate(s *discordgo.Session, e *discordgo.MessageCreate) {
 		// - make the bot post a link
 		// so this is probably safe.
 
+		leanWord := strings.ReplaceAll(match[1], "lean", "**LEAN**")
+		// handle adjacent LEANs
+		leanWord = strings.ReplaceAll(leanWord, "LEAN****LEAN", "LEANLEAN")
+
 		_, err := s.ChannelMessageSendReply(e.ChannelID,
-			fmt.Sprintf("**I LOVE** %s**LEAN**%s", match[1], match[2]),
+			fmt.Sprintf("**I LOVE** %s", leanWord),
 			e.Reference())
 		if err != nil {
 			log.Println("failed to send reply:", err)
