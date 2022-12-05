@@ -57,7 +57,8 @@ func (a *app) run() {
 	bot.Close()
 }
 
-var leanRegexp = regexp.MustCompile(`(?:^|\W)(\w*lean\w*)(?:\W|$)`)
+// string is converted to lower case before being matched
+var leanRegexp = regexp.MustCompile(`(?:^|[^a-z])([a-z]*lean[a-z]*)(?:[^a-z]|$)`)
 
 func (a *app) handleMessageCreate(s *discordgo.Session, e *discordgo.MessageCreate) {
 	if e.Author.Bot {
