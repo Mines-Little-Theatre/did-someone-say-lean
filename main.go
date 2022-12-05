@@ -74,8 +74,8 @@ func (a *app) handleMessageCreate(s *discordgo.Session, e *discordgo.MessageCrea
 		// so this is probably safe.
 
 		leanWord := strings.ReplaceAll(match[1], "lean", "**LEAN**")
-		// handle adjacent LEANs
-		leanWord = strings.ReplaceAll(leanWord, "LEAN****LEAN", "LEANLEAN")
+		// adjacent LEANS add too many formatting characters, get rid of the extraneous ones
+		leanWord = strings.ReplaceAll(leanWord, "****", "")
 
 		_, err := s.ChannelMessageSendReply(e.ChannelID,
 			fmt.Sprintf("**I LOVE** %s", leanWord),
