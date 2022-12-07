@@ -14,7 +14,18 @@ type Handler func(*discordgo.Session, *discordgo.MessageCreate) bool
 
 // handlerCascade is the order in which to run handlers until one returns true
 var handlerCascade = [...]Handler{
+	processIgnores,
 	mentionLean,
+}
+
+func processIgnores(s *discordgo.Session, e *discordgo.MessageCreate) bool {
+	for _, u := range ignoreUsers {
+		if e.Author.ID == u {
+			return true
+		}
+	}
+
+	return false
 }
 
 // string is converted to lower case before being matched

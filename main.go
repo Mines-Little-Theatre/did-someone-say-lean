@@ -22,8 +22,6 @@ func main() {
 		log.Fatalln("failed to create bot:", err)
 	}
 
-	readOptions()
-
 	bot.Identify.Intents = discordgo.IntentGuildMessages | discordgo.IntentMessageContent
 	bot.AddHandler(handleMessageCreate)
 
