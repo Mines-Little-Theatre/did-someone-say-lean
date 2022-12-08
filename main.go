@@ -4,6 +4,8 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"regexp"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -40,12 +42,17 @@ func main() {
 	bot.Close()
 }
 
+// string is converted to lower case before being matched
+var leanRegexp = regexp.MustCompile(`(?:^|[^a-z])([a-z]*lean[a-z]*)(?:[^a-z]|$)`)
+
 func handleMessageCreate(s *discordgo.Session, e *discordgo.MessageCreate) {
 	if !e.Author.Bot { // don't respond to yourself or other bots
-
-		for _, handler := range handlerCascade {
-			if handler(s, e) {
-				break
+		if match := leanRegexp.FindStringSubmatch(strings.ToLower(e.Content)); match != nil {
+			matchWord := match[1]
+			for _, handler := range handlerCascade {
+				if handler(s, e, matchWord) {
+					break
+				}
 			}
 		}
 	}
