@@ -15,17 +15,8 @@ type Handler func(*discordgo.Session, *discordgo.MessageCreate) bool
 // handlerCascade is the order in which to run handlers until one returns true
 var handlerCascade = [...]Handler{
 	processIgnores,
+	mentionGigglesnort,
 	mentionLean,
-}
-
-func processIgnores(s *discordgo.Session, e *discordgo.MessageCreate) bool {
-	for _, u := range ignoreUsers {
-		if e.Author.ID == u {
-			return true
-		}
-	}
-
-	return false
 }
 
 // string is converted to lower case before being matched
@@ -60,6 +51,34 @@ func mentionLean(s *discordgo.Session, e *discordgo.MessageCreate) bool {
 		}
 
 		return true
+	}
+
+	return false
+}
+
+func processIgnores(s *discordgo.Session, e *discordgo.MessageCreate) bool {
+	for _, u := range ignoreUsers {
+		if e.Author.ID == u {
+			return true
+		}
+	}
+
+	return false
+}
+
+func mentionGigglesnort(s *discordgo.Session, e *discordgo.MessageCreate) bool {
+	if gigglesnort != nil {
+		lowerContent := strings.ToLower(e.Content)
+		for key, response := range gigglesnort {
+			if strings.Contains(lowerContent, key) {
+				_, err := s.ChannelMessageSendReply(e.ChannelID, response, e.Reference())
+				if err == nil {
+					return true
+				} else {
+					log.Println("failed to send gigglesnort reply:", err)
+				}
+			}
+		}
 	}
 
 	return false
