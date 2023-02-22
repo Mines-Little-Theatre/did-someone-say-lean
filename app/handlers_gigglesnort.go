@@ -2,25 +2,25 @@ package app
 
 import (
 	"log"
-
-	"github.com/Mines-Little-Theatre/did-someone-say-lean/options"
 )
 
 func mentionGigglesnort(a *App, e *eventData) (cascadeAction, error) {
-	if options.Gigglesnort != nil {
-		response, ok := options.Gigglesnort[e.matchWord]
-		if ok {
-			e.gigglesnort = true
-			if !e.rateLimited {
-				_, err := e.s.ChannelMessageSendReply(e.m.ChannelID, response, e.m.Reference())
-				if err != nil {
-					return keepCascading, err
-				}
+	message, err := a.Store.GetGigglesnortMessage(e.matchWord)
+	if err != nil {
+		return stopCascading, err
+	}
 
-				return stopCascading, nil
-			} else {
-				return keepCascading, nil
+	if message != "" {
+		e.gigglesnort = true
+		if !e.rateLimited {
+			_, err := e.s.ChannelMessageSendReply(e.m.ChannelID, message, e.m.Reference())
+			if err != nil {
+				return keepCascading, err
 			}
+
+			return stopCascading, nil
+		} else {
+			return keepCascading, nil
 		}
 	}
 
@@ -29,15 +29,27 @@ func mentionGigglesnort(a *App, e *eventData) (cascadeAction, error) {
 
 func mentionGigglesnortFallback(a *App, e *eventData) (cascadeAction, error) {
 	if e.gigglesnort {
-		if options.FallbackReaction != "" {
-			err := e.s.MessageReactionAdd(e.m.ChannelID, e.m.ID, options.FallbackReaction)
+		// TODO these should maybe be optimized into one query
+
+		fallbackReaction, err := a.Store.GetFallbackReaction()
+		if err != nil {
+			return stopCascading, err
+		}
+
+		gigglesnortFallbackReaction, err := a.Store.GetGigglesnortFallbackReaction()
+		if err != nil {
+			return stopCascading, err
+		}
+
+		if fallbackReaction != "" {
+			err = e.s.MessageReactionAdd(e.m.ChannelID, e.m.ID, fallbackReaction)
 			if err != nil {
 				log.Println("mentionGigglesnortFallback :", err)
 			}
 		}
 
-		if options.GigglesnortFallbackReaction != "" {
-			err := e.s.MessageReactionAdd(e.m.ChannelID, e.m.ID, options.GigglesnortFallbackReaction)
+		if gigglesnortFallbackReaction != "" {
+			err := e.s.MessageReactionAdd(e.m.ChannelID, e.m.ID, gigglesnortFallbackReaction)
 			if err != nil {
 				log.Println("mentionGigglesnortFallback :", err)
 			}

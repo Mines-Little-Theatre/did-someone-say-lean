@@ -7,19 +7,12 @@ import (
 
 	"github.com/Mines-Little-Theatre/did-someone-say-lean/app"
 	"github.com/Mines-Little-Theatre/did-someone-say-lean/persist"
+	"github.com/Mines-Little-Theatre/did-someone-say-lean/utils"
 	"github.com/bwmarrin/discordgo"
 )
 
-func readEnvRequired(key string) string {
-	result, ok := os.LookupEnv(key)
-	if !ok {
-		log.Fatalf("please set the %s environment variable", key)
-	}
-	return result
-}
-
 func main() {
-	bot, err := discordgo.New(readEnvRequired("LEAN_TOKEN"))
+	bot, err := discordgo.New(utils.ReadEnvRequired("LEAN_TOKEN"))
 	if err != nil {
 		log.Fatalln("failed to create bot:", err)
 	}

@@ -2,8 +2,6 @@ package app
 
 import (
 	"strings"
-
-	"github.com/Mines-Little-Theatre/did-someone-say-lean/options"
 )
 
 func mentionLean(a *App, e *eventData) (cascadeAction, error) {
@@ -24,8 +22,13 @@ func mentionLean(a *App, e *eventData) (cascadeAction, error) {
 }
 
 func mentionLeanFallback(a *App, e *eventData) (cascadeAction, error) {
-	if options.FallbackReaction != "" {
-		err := e.s.MessageReactionAdd(e.m.ChannelID, e.m.ID, options.FallbackReaction)
+	fallbackReaction, err := a.Store.GetFallbackReaction()
+	if err != nil {
+		return stopCascading, err
+	}
+
+	if fallbackReaction != "" {
+		err = e.s.MessageReactionAdd(e.m.ChannelID, e.m.ID, fallbackReaction)
 		if err != nil {
 			return stopCascading, err
 		}

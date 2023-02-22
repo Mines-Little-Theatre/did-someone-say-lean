@@ -3,8 +3,6 @@ package app
 import (
 	"regexp"
 	"strings"
-
-	"github.com/Mines-Little-Theatre/did-someone-say-lean/options"
 )
 
 func ignoreBots(a *App, e *eventData) (cascadeAction, error) {
@@ -28,13 +26,16 @@ func findLeanWord(a *App, e *eventData) (cascadeAction, error) {
 }
 
 func processIgnores(a *App, e *eventData) (cascadeAction, error) {
-	for _, u := range options.IgnoreUsers {
-		if e.m.Author.ID == u {
-			return stopCascading, nil
-		}
+	ignore, err := a.Store.CheckIgnore(e.m.Author.ID, e.m.ChannelID)
+	if err != nil {
+		return stopCascading, err
 	}
 
-	return keepCascading, nil
+	if ignore {
+		return stopCascading, nil
+	} else {
+		return keepCascading, nil
+	}
 }
 
 func pollRateLimits(a *App, e *eventData) (cascadeAction, error) {
