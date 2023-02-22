@@ -4,9 +4,8 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"regexp"
-	"strings"
 
+	"github.com/Mines-Little-Theatre/did-someone-say-lean/persist"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -24,8 +23,20 @@ func main() {
 		log.Fatalln("failed to create bot:", err)
 	}
 
+	state, err := persist.Connect()
+	if err != nil {
+		log.Fatalln("failed to connect state:", err)
+	}
+
 	bot.Identify.Intents = discordgo.IntentGuildMessages | discordgo.IntentMessageContent
-	bot.AddHandler(handleMessageCreate)
+	bot.AddHandler(func(s *discordgo.Session, e *discordgo.MessageCreate) {
+		var data EventData
+		for _, handler := range handlerCascade {
+			if handler(state, s, e, &data) {
+				break
+			}
+		}
+	})
 
 	err = bot.Open()
 	if err != nil {
@@ -40,20 +51,4 @@ func main() {
 	<-sc
 	log.Println("Shutting down bot")
 	bot.Close()
-}
-
-// string is converted to lower case before being matched
-var leanRegexp = regexp.MustCompile(`(?:^|[^a-z])([a-z]*lean[a-z]*)(?:[^a-z]|$)`)
-
-func handleMessageCreate(s *discordgo.Session, e *discordgo.MessageCreate) {
-	if !e.Author.Bot { // don't respond to yourself or other bots
-		if match := leanRegexp.FindStringSubmatch(strings.ToLower(e.Content)); match != nil {
-			matchWord := match[1]
-			for _, handler := range handlerCascade {
-				if handler(s, e, matchWord) {
-					break
-				}
-			}
-		}
-	}
 }
