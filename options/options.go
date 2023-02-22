@@ -1,4 +1,4 @@
-package main
+package options
 
 import (
 	"encoding/json"
@@ -9,9 +9,10 @@ import (
 
 // optional settings configured via environment variables
 var (
-	fallbackReaction = os.Getenv("LEAN_FALLBACK_REACTION")
-	ignoreUsers      = getEnvList("LEAN_IGNORE_USERS")
-	gigglesnort      = getJsonStringMap("LEAN_GIGGLESNORT_FILE")
+	FallbackReaction            = os.Getenv("LEAN_FALLBACK_REACTION")
+	IgnoreUsers                 = getEnvList("LEAN_IGNORE_USERS")
+	Gigglesnort                 = getJsonStringMap("LEAN_GIGGLESNORT_FILE")
+	GigglesnortFallbackReaction = os.Getenv("LEAN_GIGGLESNORT_FALLBACK_REACTION")
 )
 
 // getEnvList splits the value of the environment variable at commas,

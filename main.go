@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/Mines-Little-Theatre/did-someone-say-lean/app"
 	"github.com/Mines-Little-Theatre/did-someone-say-lean/persist"
 	"github.com/bwmarrin/discordgo"
 )
@@ -28,15 +29,10 @@ func main() {
 		log.Fatalln("failed to connect state:", err)
 	}
 
+	app := app.App{State: state}
+
 	bot.Identify.Intents = discordgo.IntentGuildMessages | discordgo.IntentMessageContent
-	bot.AddHandler(func(s *discordgo.Session, e *discordgo.MessageCreate) {
-		var data EventData
-		for _, handler := range handlerCascade {
-			if handler(state, s, e, &data) {
-				break
-			}
-		}
-	})
+	bot.AddHandler(app.HandleMessageCreate)
 
 	err = bot.Open()
 	if err != nil {
