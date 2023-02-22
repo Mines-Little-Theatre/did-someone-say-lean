@@ -24,12 +24,12 @@ func main() {
 		log.Fatalln("failed to create bot:", err)
 	}
 
-	state, err := persist.Connect()
+	store, err := persist.Connect()
 	if err != nil {
-		log.Fatalln("failed to connect state:", err)
+		log.Fatalln("failed to connect store:", err)
 	}
 
-	app := app.App{State: state}
+	app := app.App{Store: store}
 
 	bot.Identify.Intents = discordgo.IntentGuildMessages | discordgo.IntentMessageContent
 	bot.AddHandler(app.HandleMessageCreate)

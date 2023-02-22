@@ -38,7 +38,7 @@ func processIgnores(a *App, e *eventData) (cascadeAction, error) {
 }
 
 func pollRateLimits(a *App, e *eventData) (cascadeAction, error) {
-	bypass, err := a.State.CheckBypassRateLimit(e.m.Author.ID, e.m.ChannelID)
+	bypass, err := a.Store.CheckBypassRateLimit(e.m.Author.ID, e.m.ChannelID)
 	if err != nil {
 		return stopCascading, err
 	}
@@ -46,7 +46,7 @@ func pollRateLimits(a *App, e *eventData) (cascadeAction, error) {
 	if bypass {
 		return keepCascading, nil
 	} else {
-		e.rateLimited, err = a.State.PollRateLimit(e.m.Author.ID, e.m.ChannelID)
+		e.rateLimited, err = a.Store.PollRateLimit(e.m.Author.ID, e.m.ChannelID)
 		if err != nil {
 			return stopCascading, err
 		}

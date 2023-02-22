@@ -27,7 +27,7 @@ var handlerCascade = [...]handler{
 
 // App handles incoming messages
 type App struct {
-	State persist.State
+	Store persist.Store
 }
 
 func (a *App) HandleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {

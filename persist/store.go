@@ -9,7 +9,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-type State interface {
+type Store interface {
 	// CheckBypassRateLimit checks whether a message sent by the user in the channel should bypass rate limiting
 	CheckBypassRateLimit(userId, channelId string) (bool, error)
 	// PollRateLimit checks whether enough time has passed since the last rate-limited event for either ID, and if so, registers a new rate-limited event as a side effect.
@@ -20,11 +20,11 @@ type State interface {
 
 const expectedSchemaVersion = 1
 
-type dbState struct {
+type dbStore struct {
 	*sql.DB
 }
 
-func Connect() (State, error) {
+func Connect() (Store, error) {
 	conn, err := sql.Open("sqlite", os.Getenv("LEAN_DB"))
 	if err != nil {
 		return nil, err
@@ -46,10 +46,10 @@ func Connect() (State, error) {
 		return nil, fmt.Errorf("schema version %d is too high (expected %d) -- please upgrade the application", schemaVersion, expectedSchemaVersion)
 	}
 
-	return &dbState{DB: conn}, nil
+	return &dbStore{DB: conn}, nil
 }
 
-func (s *dbState) CheckBypassRateLimit(userId, channelId string) (bool, error) {
+func (s *dbStore) CheckBypassRateLimit(userId, channelId string) (bool, error) {
 	row := s.QueryRow(queries.Get("check_bypass_rate_limit"), userId, channelId)
 	var result int
 	if err := row.Scan(&result); err != nil {
@@ -58,7 +58,7 @@ func (s *dbState) CheckBypassRateLimit(userId, channelId string) (bool, error) {
 	return result > 0, nil
 }
 
-func (s *dbState) PollRateLimit(userId, channelId string) (bool, error) {
+func (s *dbStore) PollRateLimit(userId, channelId string) (bool, error) {
 	tx, err := s.Begin()
 	if err != nil {
 		return false, err
