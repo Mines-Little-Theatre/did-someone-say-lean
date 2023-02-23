@@ -14,7 +14,10 @@ type dbStore struct {
 	*sql.DB
 }
 
-const expectedSchemaVersion = 2
+const (
+	applicationId uint32 = 0x4c45414e
+	userVersion   uint32 = 1
+)
 
 func Connect() (Store, error) {
 	db, err := sql.Open("sqlite", utils.ReadEnvRequired("LEAN_DB"))
@@ -22,31 +25,38 @@ func Connect() (Store, error) {
 		return nil, err
 	}
 
-	_, err = db.Exec(queries.Get("bootstrap"))
+	row := db.QueryRow("PRAGMA application_id;")
+	var dbAppId uint32
+	err = row.Scan(&dbAppId)
 	if err != nil {
 		db.Close()
 		return nil, err
 	}
 
-	schemaVersion, err := getProperty[int](db, "schema_version")
-	if err == sql.ErrNoRows {
-		schemaVersion = 0
-	} else if err != nil {
+	if dbAppId != applicationId && dbAppId != 0 {
+		db.Close()
+		return nil, fmt.Errorf("application_id mismatch: expected %d, but was %d", applicationId, dbAppId)
+	}
+
+	row = db.QueryRow("PRAGMA user_version;")
+	var dbUserVer uint32
+	err = row.Scan(&dbUserVer)
+	if err != nil {
 		db.Close()
 		return nil, err
 	}
 
-	if schemaVersion > expectedSchemaVersion {
+	if dbUserVer > userVersion {
 		db.Close()
-		return nil, fmt.Errorf("schema version %d is too high! (expected %d)", schemaVersion, expectedSchemaVersion)
+		return nil, fmt.Errorf("user_version is too high: expected %d or lower, but was %d", userVersion, dbUserVer)
 	}
-	for schemaVersion < expectedSchemaVersion {
-		_, err := db.Exec(queries.GetMigration(schemaVersion + 1))
+	for dbUserVer < userVersion {
+		_, err := db.Exec(queries.GetMigration(dbUserVer + 1))
 		if err != nil {
 			db.Close()
 			return nil, err
 		}
-		schemaVersion++
+		dbUserVer++
 	}
 
 	return &dbStore{DB: db}, nil

@@ -18,7 +18,7 @@ func Get(name string) string {
 }
 
 // GetMigration returns the text of the migration to the given schema version from its predecessor, or panics if it does not exist.
-func GetMigration(schemaVersion int) string {
+func GetMigration(schemaVersion uint32) string {
 	data, err := fs.ReadFile(fmt.Sprintf("migrations/%02d.sql", schemaVersion))
 	if err != nil {
 		panic(err)
