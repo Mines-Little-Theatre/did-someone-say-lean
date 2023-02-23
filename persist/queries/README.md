@@ -24,4 +24,4 @@ Stores the timestamp of the last rate-limited event as returned by `datetime(now
 
 ## `gigglesnort` table
 
-Associate a particular word (must be lowercase and include the substring "lean") with a particular message. The message MAY be cryptic as hell.
+Wait. You're telling me there are SECRET `message`s that the bot might use in response to particular `word`s (store in all lowercase, must contain the substring "lean")? Holean shit. <!-- ;) -->
