@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS kv_props (
+  key TEXT PRIMARY KEY,
+  value
+) WITHOUT ROWID;

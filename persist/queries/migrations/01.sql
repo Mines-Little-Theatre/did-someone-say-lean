@@ -1,10 +1,5 @@
 BEGIN;
 
-CREATE TABLE kv_props (
-  key TEXT PRIMARY KEY,
-  value
-) WITHOUT ROWID;
-
 INSERT INTO kv_props VALUES
   ('schema_version', 1),
   ('rate_limit_cooldown', '1 hour');

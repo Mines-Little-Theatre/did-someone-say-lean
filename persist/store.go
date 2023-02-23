@@ -1,9 +1,5 @@
 package persist
 
-import (
-	_ "modernc.org/sqlite"
-)
-
 type Store interface {
 	// CheckIgnore checks whether a message sent by the user in the channel should be ignored
 	CheckIgnore(userId, channelId string) (bool, error)

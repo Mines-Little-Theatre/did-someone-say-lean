@@ -6,6 +6,8 @@ import (
 
 	"github.com/Mines-Little-Theatre/did-someone-say-lean/persist/queries"
 	"github.com/Mines-Little-Theatre/did-someone-say-lean/utils"
+
+	_ "modernc.org/sqlite"
 )
 
 type dbStore struct {
@@ -20,18 +22,31 @@ func Connect() (Store, error) {
 		return nil, err
 	}
 
-	schemaVersion, err := getProperty[int](db, "schema_version")
+	_, err = db.Exec(queries.Get("bootstrap"))
 	if err != nil {
 		db.Close()
 		return nil, err
 	}
 
-	if schemaVersion < expectedSchemaVersion {
+	schemaVersion, err := getProperty[int](db, "schema_version")
+	if err == sql.ErrNoRows {
+		schemaVersion = 0
+	} else if err != nil {
 		db.Close()
-		return nil, fmt.Errorf("schema version %d is too low (expected %d) -- please upgrade the database", schemaVersion, expectedSchemaVersion)
-	} else if schemaVersion > expectedSchemaVersion {
+		return nil, err
+	}
+
+	if schemaVersion > expectedSchemaVersion {
 		db.Close()
-		return nil, fmt.Errorf("schema version %d is too high (expected %d) -- please upgrade the application", schemaVersion, expectedSchemaVersion)
+		return nil, fmt.Errorf("schema version %d is too high! (expected %d)", schemaVersion, expectedSchemaVersion)
+	}
+	for schemaVersion < expectedSchemaVersion {
+		_, err := db.Exec(queries.GetMigration(schemaVersion + 1))
+		if err != nil {
+			db.Close()
+			return nil, err
+		}
+		schemaVersion++
 	}
 
 	return &dbStore{DB: db}, nil
