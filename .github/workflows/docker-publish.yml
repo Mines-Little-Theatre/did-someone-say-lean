@@ -12,7 +12,7 @@ on:
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
-  IMAGE_NAME: Mines-Little-Theatre/did-someone-say-lean
+  IMAGE_NAME: mines-little-theatre/did-someone-say-lean
 
 
 jobs:
