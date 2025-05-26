@@ -3,11 +3,13 @@ package persist
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"github.com/Mines-Little-Theatre/did-someone-say-lean/persist/queries"
 	"github.com/Mines-Little-Theatre/did-someone-say-lean/utils"
 
 	_ "modernc.org/sqlite"
+	_ "github.com/jackc/pgx/v5"
 )
 
 type dbStore struct {
@@ -19,8 +21,19 @@ const (
 	userVersion   uint32 = 1
 )
 
-func Connect() (Store, error) {
-	db, err := sql.Open("sqlite", utils.ReadEnvRequired("LEAN_DB"))
+func ConnectPG(connectionString string) (*sql.DB, error){
+	db, err := sql.Open("", connectionString)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
+}
+
+func ConnectSQLite(connectionString string) (*sql.DB, error){
+	db, err := sql.Open("sqllite", connectionString)
+
 	if err != nil {
 		return nil, err
 	}
@@ -38,12 +51,35 @@ func Connect() (Store, error) {
 		return nil, fmt.Errorf("application_id mismatch: expected %d, but was %d", applicationId, dbAppId)
 	}
 
-	row = db.QueryRow("PRAGMA user_version;")
+	return db, nil
+
+}
+
+func Connect() (Store, error) {
+	connectionString := utils.ReadEnvRequired("LEAN_DB")
+
+	var db *sql.DB = nil
+	var err error = nil
+
+
+	if strings.Contains("postgresql", connectionString){
+		db, err = ConnectPG(connectionString)
+	} else {
+		db, err = ConnectSQLite(connectionString)
+	}
+
+
+	if err != nil {
+		return nil, err
+	}
+
+
+	row := db.QueryRow(queries.GetUserVersion())
 	var dbUserVer uint32
 	err = row.Scan(&dbUserVer)
 	if err != nil {
-		db.Close()
-		return nil, err
+		// we are going to assume that if this query fails, that we need to run all migrations.
+		dbUserVer = 0
 	}
 
 	if dbUserVer > userVersion {
@@ -61,6 +97,7 @@ func Connect() (Store, error) {
 
 	return &dbStore{DB: db}, nil
 }
+
 
 func (s *dbStore) CheckIgnore(userId, channelId string) (bool, error) {
 	return checkAttribute(s.DB, "ignore", userId, channelId)

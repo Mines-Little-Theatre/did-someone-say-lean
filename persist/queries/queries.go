@@ -25,3 +25,12 @@ func GetMigration(userVersion uint32) string {
 	}
 	return string(data)
 }
+
+func GetUserVersion() string {
+	data, err := fs.ReadFile("get_user_version.sql")
+	if err != nil {
+		panic(err)
+	}
+
+	return string(data)
+}
