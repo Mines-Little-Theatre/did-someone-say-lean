@@ -21,7 +21,7 @@ const (
 )
 
 func ConnectPG(connectionString string) (*sql.DB, error){
-	db, err := sql.Open("", connectionString)
+	db, err := sql.Open("pgx/v5", connectionString)
 
 	if err != nil {
 		return nil, err
