@@ -17,7 +17,6 @@ type dbStore struct {
 }
 
 const (
-	applicationId uint32 = 0x4c45414e
 	userVersion   uint32 = 1
 )
 
@@ -38,21 +37,7 @@ func ConnectSQLite(connectionString string) (*sql.DB, error){
 		return nil, err
 	}
 
-	row := db.QueryRow("PRAGMA application_id;")
-	var dbAppId uint32
-	err = row.Scan(&dbAppId)
-	if err != nil {
-		db.Close()
-		return nil, err
-	}
-
-	if dbAppId != applicationId && dbAppId != 0 {
-		db.Close()
-		return nil, fmt.Errorf("application_id mismatch: expected %d, but was %d", applicationId, dbAppId)
-	}
-
 	return db, nil
-
 }
 
 func Connect() (Store, error) {
