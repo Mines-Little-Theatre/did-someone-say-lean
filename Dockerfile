@@ -5,13 +5,13 @@ WORKDIR /app
 
 ADD . /app/
 
-RUN go build -o /leanbot .
+RUN go build -o /app/leanbot .
 
 # Trim image
 FROM golang:1.24 AS runner
 
 WORKDIR /app
 
-COPY --from=builder /leanbot /app/leanbot
+COPY --from=builder /app/leanbot /app/leanbot
 
-CMD ["/app/leanbot"]
+ENTRYPOINT ["/app/leanbot"]
