@@ -10,10 +10,7 @@ ADD . .
 RUN CGO_ENABLED=0 go install -ldflags '-extldflags "-static"' -tags timetzdata
 
 # Trim image
-# FROM golang:1.24 AS runner
-FROM scratch AS runner
-
-COPY --from=alpine:latest /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+FROM golang:1.24-alpine AS runner
 
 COPY --from=builder /go/bin/did-someone-say-lean /leanbot
 
