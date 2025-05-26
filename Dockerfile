@@ -1,17 +1,20 @@
 # Base image
-FROM golang:1.24 AS builder
+FROM golang:1.24-alpine AS builder
 
-WORKDIR /app
+RUN apk add git
 
-ADD . /app/
+WORKDIR /go/src/app
 
-RUN go build -o /app/leanbot .
+ADD . .
+
+RUN CGO_ENABLED=0 go install -ldflags '-extldflags "-static"' -tags timetzdata
 
 # Trim image
-FROM golang:1.24 AS runner
+# FROM golang:1.24 AS runner
+FROM scratch AS runner
 
-WORKDIR /app
+COPY --from=alpine:latest /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-COPY --from=builder /app/leanbot /app/leanbot
+COPY --from=builder /go/bin/did-someone-say-lean /leanbot
 
-ENTRYPOINT ["/app/leanbot"]
+ENTRYPOINT ["/leanbot"]
