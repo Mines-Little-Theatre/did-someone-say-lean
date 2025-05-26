@@ -1,4 +1,4 @@
-module github.com/Mines-Little-Theate/did-someone-say-lean
+module github.com/Mines-Little-Theatre/did-someone-say-lean
 
 go 1.23.0
 
