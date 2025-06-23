@@ -9,7 +9,7 @@ import (
 	"github.com/Mines-Little-Theatre/did-someone-say-lean/utils"
 
 	_ "modernc.org/sqlite"
-	_ "github.com/jackc/pgx/v5"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type dbStore struct {
@@ -21,7 +21,7 @@ const (
 )
 
 func ConnectPG(connectionString string) (*sql.DB, error){
-	db, err := sql.Open("pgx/v5", connectionString)
+	db, err := sql.Open("pgx", connectionString)
 
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func ConnectPG(connectionString string) (*sql.DB, error){
 }
 
 func ConnectSQLite(connectionString string) (*sql.DB, error){
-	db, err := sql.Open("sqllite", connectionString)
+	db, err := sql.Open("sqlite", connectionString)
 
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func Connect() (Store, error) {
 	var err error = nil
 
 
-	if strings.Contains("postgresql", connectionString){
+	if strings.Contains(connectionString, "postgresql"){
 		db, err = ConnectPG(connectionString)
 	} else {
 		db, err = ConnectSQLite(connectionString)

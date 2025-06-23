@@ -5,7 +5,6 @@ go 1.23.0
 toolchain go1.24.3
 
 require (
-	github.com/Mines-Little-Theatre/did-someone-say-lean v0.0.0-20250526004333-d107aaa8d7fd
 	github.com/bwmarrin/discordgo v0.27.0
 	github.com/jackc/pgx/v5 v5.7.5
 	modernc.org/sqlite v1.20.4
@@ -17,6 +16,7 @@ require (
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
+	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
