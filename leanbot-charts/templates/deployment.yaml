@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-app
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-app
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-app
+    spec:
+      containers:
+        - name: app
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: "LEAN_DB"
+              valueFrom:
+                  secretKeyRef:
+                      key: lean_db
+                      name: {{ .Release.Name }}-auth
+            - name: "LEAN_TOKEN"
+              valueFrom:
+                  secretKeyRef:
+                      key: lean_token
+                      name: {{ .Release.Name }}-auth
+

@@ -1,0 +1,9 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/mines-little-theatre/leanbot
+  tag: latest
+  pullPolicy: IfNotPresent
+
+
+

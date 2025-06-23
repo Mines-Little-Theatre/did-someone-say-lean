@@ -1,0 +1,7 @@
+apiVersion: v2
+name: lean-bot
+type: application
+description: a discord bot that LOVES LEAN
+version: 1.0.0
+appVersion: "v1.0.0"
+

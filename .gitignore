@@ -33,3 +33,4 @@ go.work
 
 did-someone-say-lean
 *.sqlite3
+.DS_Store
