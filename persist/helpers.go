@@ -30,7 +30,7 @@ func checkAttribute(db *sql.DB, attr string, ids ...string) (bool, error) {
 		args = append(args, id)
 	}
 	row := db.QueryRow(queries.Get(queryName), args...)
-	var result int
+	var result bool
 	err := row.Scan(&result)
-	return result > 0, err
+	return result, err
 }
