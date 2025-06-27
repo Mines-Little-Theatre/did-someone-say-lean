@@ -126,7 +126,7 @@ func (s *dbStore) PollRateLimit(userId, channelId string) (bool, error) {
 	}
 
 	row := tx.QueryRow(queries.Get("check_rate_limit"), userId, channelId)
-	var result int
+	var result bool
 	if err = row.Scan(&result); err != nil {
 		tx.Rollback()
 		return false, err
@@ -141,5 +141,5 @@ func (s *dbStore) PollRateLimit(userId, channelId string) (bool, error) {
 		}
 	}
 
-	return result > 0, tx.Commit()
+	return result, tx.Commit()
 }
