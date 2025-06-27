@@ -132,8 +132,7 @@ func (s *dbStore) PollRateLimit(userId, channelId string) (bool, error) {
 		return false, err
 	}
 
-	rateLimited := result > 0
-	if !rateLimited {
+	if !result {
 		_, err = tx.Exec(queries.Get("update_rate_limit"), userId, channelId)
 		if err != nil {
 			tx.Rollback()
