@@ -9,6 +9,7 @@ INSERT INTO kv_props VALUES
   ('rate_limit_cooldown', '1 hour');
 
 INSERT INTO kv_props VALUES ('user_version', '1');
+INSERT INTO kv_props VALUES ('db_version', '1');
 
 CREATE TABLE IF NOT EXISTS  attributes (
   id TEXT NOT NULL,

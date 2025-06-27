@@ -5,5 +5,5 @@
 
 SELECT EXISTS (
   SELECT * FROM attributes
-  WHERE (id = ?2 OR id = ?3) AND attr = ?1
+  WHERE (id = $2 OR id = $3) AND attr = $1
 );

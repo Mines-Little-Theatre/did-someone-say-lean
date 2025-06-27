@@ -50,7 +50,8 @@ func Connect() (Store, error) {
 	if strings.Contains(connectionString, "postgresql"){
 		db, err = ConnectPG(connectionString)
 	} else {
-		db, err = ConnectSQLite(connectionString)
+		// db, err = ConnectSQLite(connectionString)
+        return nil, fmt.Errorf("Leanbot reqiures postgresql!")
 	}
 
 
