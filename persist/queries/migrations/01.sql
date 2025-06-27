@@ -20,7 +20,7 @@ CREATE UNIQUE INDEX attributes_id_attr_idx ON attributes (id, attr);
 
 CREATE TABLE IF NOT EXISTS rate_limit_event (
   id TEXT PRIMARY KEY,
-  timestamp TEXT NOT NULL
+  timestamp TIMESTAMP NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS gigglesnort (
